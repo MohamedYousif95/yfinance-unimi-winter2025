@@ -215,8 +215,8 @@ def build_performance_table(
         pd.DataFrame: DataFrame with performance metrics indexed by ticker.
                      Columns include:
                      - CAGR: Compound Annual Growth Rate
-                     - Vol (annual): Annualized volatility
-                     - MaxDD: Maximum drawdown
+                     - Annual Volatility: Annualized volatility
+                     - Max Drawdown: Maximum drawdown
                      - VaR{alpha*100}% (daily): Value at Risk
                      - CVaR{alpha*100}% (daily): Conditional Value at Risk
     """
@@ -229,8 +229,8 @@ def build_performance_table(
         rows.append({
             "Ticker": t,
             "CAGR": cagr(tri_t),
-            "Vol (annual)": float(r.std(ddof=1) * np.sqrt(252)),
-            "MaxDD": max_drawdown(tri_t),
+            "Annual Volatility": float(r.std(ddof=1) * np.sqrt(252)),
+            "Max Drawdown": max_drawdown(tri_t),
             f"VaR{int(alpha*100)}% (daily)": vr,
             f"CVaR{int(alpha*100)}% (daily)": cvr,
         })
