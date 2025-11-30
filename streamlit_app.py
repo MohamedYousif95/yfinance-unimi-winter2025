@@ -90,7 +90,7 @@ class TradeBuddyDashboardApp:
 
 
     def run(self) -> None:
-        """Main entrypoint: orchestrate the full Streamlit app."""
+        """Orchestrator to run TradeBuddy Web App"""
         self._render_title_and_intro()
         self._render_sidebar_config()
         self._load_data()
@@ -308,6 +308,8 @@ class TradeBuddyDashboardApp:
         )
 
         candidate_assets = [t for t in analysis_tickers if t != benchmark] or [benchmark]
+
+        # There is a bug here as the selected stock does not render in the rolling beta plot
         asset_for_beta = st.selectbox(
             "Asset for rolling beta (vs benchmark)",
             options=candidate_assets,
@@ -320,7 +322,6 @@ class TradeBuddyDashboardApp:
     def _format_summary_table(self, summary_table: pd.DataFrame) -> pd.DataFrame:
         """
         Return a copy of the summary table with percentage-like columns formatted as text.
-        This is only for display in Streamlit (the underlying numeric table is kept in state).
         """
         formatted = summary_table.copy()
 

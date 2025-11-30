@@ -68,7 +68,7 @@ The project requires the following core packages:
 
 ```
 yfinance-unimi-winter2025/
-├── streamlit_app.py              # Main Streamlit application (functional)
+├── streamlit_app.py              # Main Streamlit application
 ├── requirements.txt              # Project dependencies
 ├── README.md
 ├── src/
@@ -114,4 +114,4 @@ yfinance-unimi-winter2025/
 
 ## 👥 Contributor
 
-[Mohamed Yousif]
+`Mohamed Yousif`
