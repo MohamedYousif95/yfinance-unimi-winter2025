@@ -227,10 +227,6 @@ class TradeBuddyDashboardApp:
         self.state.drawdowns = drawdowns
         self.state.rolling_stats = rolling_stats
 
-        st.markdown(
-            "**Derived series:** daily returns, monthly returns, TRI, "
-            "drawdowns, rolling mean & volatility."
-        )
 
     def _compute_metrics_and_beta(self) -> None:
         """
