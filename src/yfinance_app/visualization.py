@@ -28,11 +28,15 @@ def plot_normalized(tri: pd.DataFrame, title: str = "Normalized Total Return (st
                                     normalized TRI over time.
     """
     norm = tri / tri.iloc[0] * 100.0
-    fig = px.line(norm, title=title, labels={"value":"Index Level","index":"Date","variable":"Ticker"})
+    fig = px.line(
+        norm,
+        title=title,
+        labels={"value":"Index Level","index":"Date","variable":"Ticker"}
+    )
     return fig
 
 
-def plot_drawdowns(levels: pd.DataFrame, title: str = "Drawdowns (from running peak)"):
+def plot_drawdowns(tri: pd.DataFrame, title: str = "Drawdowns (from running peak)"):
     """
     Plot drawdown series for all tickers.
 
@@ -40,15 +44,15 @@ def plot_drawdowns(levels: pd.DataFrame, title: str = "Drawdowns (from running p
     Drawdowns are displayed as percentages.
 
     Args:
-        levels: DataFrame with price or level series. Each column represents
-                a ticker, index is datetime.
+        tri: DataFrame with Total Return Index values. Each column represents
+             a ticker, index is datetime.
         title: Plot title. Default is "Drawdowns (from running peak)".
 
     Returns:
         plotly.graph_objects.Figure: Plotly figure object with line chart showing
                                     drawdown percentages over time.
     """
-    dd = compute_drawdown(levels)
+    dd = compute_drawdown(tri)
     fig = px.line(dd, title=title, labels={"value":"Drawdown","index":"Date","variable":"Ticker"})
     fig.update_yaxes(tickformat=".0%")
     return fig
@@ -93,13 +97,22 @@ def plot_corr_heatmap(corr: pd.DataFrame, title: str = "Correlation Heatmap"):
         plotly.graph_objects.Figure: Plotly figure object with heatmap visualization
                                     showing correlation values with text labels.
     """
-    fig = px.imshow(corr, text_auto=True, aspect="auto", color_continuous_scale="RdBu", origin="lower",
-                    title=title)
+    fig = px.imshow(
+        corr,
+        text_auto=True,
+        aspect="auto",
+        color_continuous_scale="RdBu",
+        origin="lower",
+        title=title
+    )
     fig.update_traces(zmin=-1, zmax=1)
     return fig
 
 
-def plot_risk_return_scatter(summary: pd.DataFrame, title: str = "Risk–Return: CAGR vs Annualized Volatility"):
+def plot_risk_return_scatter(
+    summary: pd.DataFrame,
+    title: str = "Risk–Return: CAGR vs Annualized Volatility"
+):
     """
     Plot risk-return scatter chart showing CAGR vs annualized volatility.
 
@@ -109,7 +122,7 @@ def plot_risk_return_scatter(summary: pd.DataFrame, title: str = "Risk–Return:
 
     Args:
         summary: DataFrame with performance metrics. Must contain 'CAGR' and
-                'Vol (annual)' columns. Index should be ticker names.
+                'Annual Volatility' columns. Index should be ticker names.
         title: Plot title. Default is "Risk–Return: CAGR vs Annualized Volatility".
 
     Returns:
@@ -119,8 +132,8 @@ def plot_risk_return_scatter(summary: pd.DataFrame, title: str = "Risk–Return:
     """
     fig = px.scatter(
         summary.reset_index(),
-        x="Vol (annual)", y="CAGR", text="Ticker", color="Ticker",
-        title=title, labels={"x":"Vol (annual)","y":"CAGR"}
+        x="Annual Volatility", y="CAGR", text="Ticker", color="Ticker",
+        title=title, labels={"x":"Annual Volatility","y":"CAGR"}
     )
     fig.update_traces(textposition="top center")
     return fig
@@ -187,7 +200,8 @@ def plot_hist_monthly_returns(monthly_return_pct: pd.DataFrame, facet_wrap: int 
     Plot faceted histograms of monthly returns for each ticker.
 
     Creates separate histogram plots for each ticker showing the distribution
-    of monthly returns. Returns are expected as percentages (e.g., 5.0 = 5%).
+    of monthly returns. Returns are expected as percentages (e.g., 5.0 = 5%)
+    but are converted to fractions for consistent plotting with daily returns.
     Number of bins is determined using the square root rule.
 
     Args:
@@ -200,11 +214,13 @@ def plot_hist_monthly_returns(monthly_return_pct: pd.DataFrame, facet_wrap: int 
         plotly.graph_objects.Figure: Plotly figure object with faceted histograms,
                                     one per ticker, showing monthly return distributions.
     """
-    long = monthly_return_pct.melt(ignore_index=False, var_name="Ticker", value_name="ReturnPct")
-    n = long["ReturnPct"].dropna().size
+    monthly_returns_fraction = monthly_return_pct / 100.0
+    long = monthly_returns_fraction.melt(ignore_index=False, var_name="Ticker", value_name="Return")
+    n = long["Return"].dropna().size
     nbins = max(10, int(np.sqrt(n)))
     fig = px.histogram(
-        long, x="ReturnPct", facet_col="Ticker", facet_col_wrap=facet_wrap,
-        nbins=nbins, title="Histograms of Monthly Returns (%)"
+        long, x="Return", facet_col="Ticker", facet_col_wrap=facet_wrap,
+        nbins=nbins, title="Histograms of Monthly Returns"
     )
+    fig.update_xaxes(tickformat=".1%")
     return fig
